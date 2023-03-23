@@ -11,7 +11,7 @@
 #'
 #' @return Vector of densities
 dgamma_rcpp <- function(x, mu, sigma) {
-    .Call('_moveHMM_dgamma_rcpp', PACKAGE = 'moveHMM', x, mu, sigma)
+    .Call('_moveHMMCustom_dgamma_rcpp', PACKAGE = 'moveHMMCustom', x, mu, sigma)
 }
 
 #' Weibull density function
@@ -24,7 +24,7 @@ dgamma_rcpp <- function(x, mu, sigma) {
 #'
 #' @return Vector of densities
 dweibull_rcpp <- function(x, shape, scale) {
-    .Call('_moveHMM_dweibull_rcpp', PACKAGE = 'moveHMM', x, shape, scale)
+    .Call('_moveHMMCustom_dweibull_rcpp', PACKAGE = 'moveHMMCustom', x, shape, scale)
 }
 
 #' Log-normal density function
@@ -37,7 +37,7 @@ dweibull_rcpp <- function(x, shape, scale) {
 #'
 #' @return Vector of densities
 dlnorm_rcpp <- function(x, meanlog, sdlog) {
-    .Call('_moveHMM_dlnorm_rcpp', PACKAGE = 'moveHMM', x, meanlog, sdlog)
+    .Call('_moveHMMCustom_dlnorm_rcpp', PACKAGE = 'moveHMMCustom', x, meanlog, sdlog)
 }
 
 #' Exponential density function
@@ -50,7 +50,7 @@ dlnorm_rcpp <- function(x, meanlog, sdlog) {
 #'
 #' @return Vector of densities
 dexp_rcpp <- function(x, rate, foo = 0) {
-    .Call('_moveHMM_dexp_rcpp', PACKAGE = 'moveHMM', x, rate, foo)
+    .Call('_moveHMMCustom_dexp_rcpp', PACKAGE = 'moveHMMCustom', x, rate, foo)
 }
 
 #' Von Mises density function
@@ -64,7 +64,7 @@ dexp_rcpp <- function(x, rate, foo = 0) {
 #'
 #' @return Vector of densities
 dvm_rcpp <- function(x, mu, kappa) {
-    .Call('_moveHMM_dvm_rcpp', PACKAGE = 'moveHMM', x, mu, kappa)
+    .Call('_moveHMMCustom_dvm_rcpp', PACKAGE = 'moveHMMCustom', x, mu, kappa)
 }
 
 #' Wrapped Cauchy density function
@@ -77,7 +77,7 @@ dvm_rcpp <- function(x, mu, kappa) {
 #'
 #' @return Vector of densities
 dwrpcauchy_rcpp <- function(x, mu, rho) {
-    .Call('_moveHMM_dwrpcauchy_rcpp', PACKAGE = 'moveHMM', x, mu, rho)
+    .Call('_moveHMMCustom_dwrpcauchy_rcpp', PACKAGE = 'moveHMMCustom', x, mu, rho)
 }
 
 #' Negative log-likelihood
@@ -105,7 +105,7 @@ dwrpcauchy_rcpp <- function(x, mu, rho) {
 #'
 #' @return Negative log-likelihood
 nLogLike_rcpp <- function(nbStates, beta, covs, data, stepDist, angleDist, stepPar, anglePar, delta, aInd, zeroInflation, stationary, knownStates) {
-    .Call('_moveHMM_nLogLike_rcpp', PACKAGE = 'moveHMM', nbStates, beta, covs, data, stepDist, angleDist, stepPar, anglePar, delta, aInd, zeroInflation, stationary, knownStates)
+    .Call('_moveHMMCustom_nLogLike_rcpp', PACKAGE = 'moveHMMCustom', nbStates, beta, covs, data, stepDist, angleDist, stepPar, anglePar, delta, aInd, zeroInflation, stationary, knownStates)
 }
 
 #' Transition probability matrix
@@ -121,6 +121,6 @@ nLogLike_rcpp <- function(nbStates, beta, covs, data, stepDist, angleDist, stepP
 #' @return Three dimensional array \code{trMat}, such that \code{trMat[,,t]} is the transition matrix at
 #' time t.
 trMatrix_rcpp <- function(nbStates, beta, covs) {
-    .Call('_moveHMM_trMatrix_rcpp', PACKAGE = 'moveHMM', nbStates, beta, covs)
+    .Call('_moveHMMCustom_trMatrix_rcpp', PACKAGE = 'moveHMMCustom', nbStates, beta, covs)
 }
 

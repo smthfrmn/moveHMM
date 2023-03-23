@@ -13,7 +13,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 
 // dgamma_rcpp
 arma::colvec dgamma_rcpp(NumericVector x, double mu, double sigma);
-RcppExport SEXP _moveHMM_dgamma_rcpp(SEXP xSEXP, SEXP muSEXP, SEXP sigmaSEXP) {
+RcppExport SEXP _moveHMMCustom_dgamma_rcpp(SEXP xSEXP, SEXP muSEXP, SEXP sigmaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -26,7 +26,7 @@ END_RCPP
 }
 // dweibull_rcpp
 arma::colvec dweibull_rcpp(NumericVector x, double shape, double scale);
-RcppExport SEXP _moveHMM_dweibull_rcpp(SEXP xSEXP, SEXP shapeSEXP, SEXP scaleSEXP) {
+RcppExport SEXP _moveHMMCustom_dweibull_rcpp(SEXP xSEXP, SEXP shapeSEXP, SEXP scaleSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -39,7 +39,7 @@ END_RCPP
 }
 // dlnorm_rcpp
 arma::colvec dlnorm_rcpp(NumericVector x, double meanlog, double sdlog);
-RcppExport SEXP _moveHMM_dlnorm_rcpp(SEXP xSEXP, SEXP meanlogSEXP, SEXP sdlogSEXP) {
+RcppExport SEXP _moveHMMCustom_dlnorm_rcpp(SEXP xSEXP, SEXP meanlogSEXP, SEXP sdlogSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -52,7 +52,7 @@ END_RCPP
 }
 // dexp_rcpp
 arma::colvec dexp_rcpp(NumericVector x, double rate, double foo);
-RcppExport SEXP _moveHMM_dexp_rcpp(SEXP xSEXP, SEXP rateSEXP, SEXP fooSEXP) {
+RcppExport SEXP _moveHMMCustom_dexp_rcpp(SEXP xSEXP, SEXP rateSEXP, SEXP fooSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -65,7 +65,7 @@ END_RCPP
 }
 // dvm_rcpp
 arma::colvec dvm_rcpp(NumericVector x, double mu, double kappa);
-RcppExport SEXP _moveHMM_dvm_rcpp(SEXP xSEXP, SEXP muSEXP, SEXP kappaSEXP) {
+RcppExport SEXP _moveHMMCustom_dvm_rcpp(SEXP xSEXP, SEXP muSEXP, SEXP kappaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -78,7 +78,7 @@ END_RCPP
 }
 // dwrpcauchy_rcpp
 arma::colvec dwrpcauchy_rcpp(NumericVector x, double mu, double rho);
-RcppExport SEXP _moveHMM_dwrpcauchy_rcpp(SEXP xSEXP, SEXP muSEXP, SEXP rhoSEXP) {
+RcppExport SEXP _moveHMMCustom_dwrpcauchy_rcpp(SEXP xSEXP, SEXP muSEXP, SEXP rhoSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -91,7 +91,7 @@ END_RCPP
 }
 // nLogLike_rcpp
 double nLogLike_rcpp(int nbStates, arma::mat beta, arma::mat covs, DataFrame data, std::string stepDist, std::string angleDist, arma::mat stepPar, arma::mat anglePar, arma::rowvec delta, IntegerVector aInd, bool zeroInflation, bool stationary, IntegerVector knownStates);
-RcppExport SEXP _moveHMM_nLogLike_rcpp(SEXP nbStatesSEXP, SEXP betaSEXP, SEXP covsSEXP, SEXP dataSEXP, SEXP stepDistSEXP, SEXP angleDistSEXP, SEXP stepParSEXP, SEXP angleParSEXP, SEXP deltaSEXP, SEXP aIndSEXP, SEXP zeroInflationSEXP, SEXP stationarySEXP, SEXP knownStatesSEXP) {
+RcppExport SEXP _moveHMMCustom_nLogLike_rcpp(SEXP nbStatesSEXP, SEXP betaSEXP, SEXP covsSEXP, SEXP dataSEXP, SEXP stepDistSEXP, SEXP angleDistSEXP, SEXP stepParSEXP, SEXP angleParSEXP, SEXP deltaSEXP, SEXP aIndSEXP, SEXP zeroInflationSEXP, SEXP stationarySEXP, SEXP knownStatesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -114,7 +114,7 @@ END_RCPP
 }
 // trMatrix_rcpp
 arma::cube trMatrix_rcpp(int nbStates, arma::mat beta, arma::mat covs);
-RcppExport SEXP _moveHMM_trMatrix_rcpp(SEXP nbStatesSEXP, SEXP betaSEXP, SEXP covsSEXP) {
+RcppExport SEXP _moveHMMCustom_trMatrix_rcpp(SEXP nbStatesSEXP, SEXP betaSEXP, SEXP covsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -124,4 +124,21 @@ BEGIN_RCPP
     rcpp_result_gen = Rcpp::wrap(trMatrix_rcpp(nbStates, beta, covs));
     return rcpp_result_gen;
 END_RCPP
+}
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_moveHMMCustom_dgamma_rcpp", (DL_FUNC) &_moveHMMCustom_dgamma_rcpp, 3},
+    {"_moveHMMCustom_dweibull_rcpp", (DL_FUNC) &_moveHMMCustom_dweibull_rcpp, 3},
+    {"_moveHMMCustom_dlnorm_rcpp", (DL_FUNC) &_moveHMMCustom_dlnorm_rcpp, 3},
+    {"_moveHMMCustom_dexp_rcpp", (DL_FUNC) &_moveHMMCustom_dexp_rcpp, 3},
+    {"_moveHMMCustom_dvm_rcpp", (DL_FUNC) &_moveHMMCustom_dvm_rcpp, 3},
+    {"_moveHMMCustom_dwrpcauchy_rcpp", (DL_FUNC) &_moveHMMCustom_dwrpcauchy_rcpp, 3},
+    {"_moveHMMCustom_nLogLike_rcpp", (DL_FUNC) &_moveHMMCustom_nLogLike_rcpp, 13},
+    {"_moveHMMCustom_trMatrix_rcpp", (DL_FUNC) &_moveHMMCustom_trMatrix_rcpp, 3},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_moveHMMCustom(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }

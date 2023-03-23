@@ -1,4 +1,4 @@
-Package: moveHMM
+Package: moveHMMCustom
 Type: Package
 Title: Animal Movement Modelling using Hidden Markov Models
 Version: 1.8
@@ -30,5 +30,5 @@ Suggests:
     testthat,
     knitr
 VignetteBuilder: knitr
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 Encoding: UTF-8

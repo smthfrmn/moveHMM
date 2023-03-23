@@ -75,8 +75,8 @@ plot.moveHMM <- function(x, animals = NULL, ask = TRUE, breaks = "Sturges", col 
 
     # define ymax for step histogram
     h <- hist(m$data$step, plot = FALSE, breaks = breaks)
-    ymax <- 1.3 * max(h$density)
-    maxdens <- max(distData$step$total)
+    ymax <- 1.3 * max(h$density, na.rm = TRUE)
+    maxdens <- max(distData$step$total, na.rm = TRUE)
     if(maxdens > ymax & maxdens < 1.5 * ymax) {
         ymax <- maxdens
     }
@@ -95,7 +95,7 @@ plot.moveHMM <- function(x, animals = NULL, ask = TRUE, breaks = "Sturges", col 
     h1 <- hist(m$data$angle, plot = FALSE, breaks = breaks)
     breaks <- seq(-pi, pi, length = length(h1$breaks))
     h2 <- hist(m$data$angle, plot = FALSE, breaks = breaks)
-    ymax <- 1.3 * max(h2$density)
+    ymax <- 1.3 * max(h2$density, na.rm = TRUE)
 
     # turning angle histogram
     hist(m$data$angle, ylim = c(0, ymax), prob = TRUE, main = "",
