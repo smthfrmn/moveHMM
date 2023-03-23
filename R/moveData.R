@@ -5,7 +5,9 @@
 #' (the step lengths), \code{angle} (the turning angles, if any), \code{x} (either easting or longitude),
 #' \code{y} (either norting or latitude), and covariates, if any.
 #'
+#' @export
 #' @return An object \code{moveData}.
+
 
 moveData <- function(data)
 {

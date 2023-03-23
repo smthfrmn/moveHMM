@@ -30,5 +30,5 @@ Suggests:
     testthat,
     knitr
 VignetteBuilder: knitr
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 Encoding: UTF-8
