@@ -1,4 +1,4 @@
-Package: moveHMMCustom
+Package: moveHMM
 Type: Package
 Title: Animal Movement Modelling using Hidden Markov Models
 Version: 1.8
