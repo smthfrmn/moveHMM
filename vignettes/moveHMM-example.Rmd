@@ -85,8 +85,10 @@ anglePar0 <- c(pi, 0, 0.3, 5)
 We can fit the model using `fitHMM`, with arguments `nbStates` (number of states), `stepPar0` (initial step length parameters), and `anglePar0` (initial turning angle parameters). By default, the function uses the gamma and von Mises distributions, so we don't need to specify them here, but the arguments `stepDist` and `angleDist` could be included to use different distributions.
 
 ```{r fit-mod1}
-mod1 <- fitHMM(data = data, nbStates = 2, 
-               stepPar0 = stepPar0, anglePar0 = anglePar0)
+mod1 <- fitHMM(
+  data = data, nbStates = 2,
+  stepPar0 = stepPar0, anglePar0 = anglePar0
+)
 
 mod1
 ```
@@ -120,12 +122,12 @@ As shows in the plots above, it is possible to estimate a state for each observa
 data$state <- factor(viterbi(mod1))
 
 # Plot tracks coloured by state
-ggplot(data, aes(x, y, col = state, group = ID)) + 
-    geom_path() +
-    coord_equal()
+ggplot(data, aes(x, y, col = state, group = ID)) +
+  geom_path() +
+  coord_equal()
 # Plot step lengths coloured by state
-ggplot(data, aes(x = 1:nrow(data), y = step, col = state, group = ID)) + 
-    geom_point(size = 0.3)
+ggplot(data, aes(x = 1:nrow(data), y = step, col = state, group = ID)) +
+  geom_point(size = 0.3)
 ```
 
 An alternative to the Viterbi algorithm is to compute state probabilities, i.e., the probability of being in each state for each observation in the data. State probabilities provide more detailed information about the uncertainty on the state allocation, and they can be computed with the function `stateProbs`. The output is a matrix with one column for each state and one row for each observation.
@@ -135,11 +137,11 @@ sp <- stateProbs(m = mod1)
 head(sp)
 
 # Add prob of state 1 to data set
-data$sp1 <- sp[,1]
+data$sp1 <- sp[, 1]
 ggplot(data, aes(x, y, col = sp1, group = ID)) +
-    geom_path() +
-    coord_equal() +
-    labs(col = "Pr(S = 1)")
+  geom_path() +
+  coord_equal() +
+  labs(col = "Pr(S = 1)")
 ```
 
 # Covariates
@@ -149,9 +151,11 @@ HMMs have been extended to allow for covariate effects on the transition probabi
 We model the haggises' transition probabilities as functions of two covariates: temperature, and slope. We expect a non-linear effect of slope, so we include a quadratic term for that covariate. The model formula can be specified using the usual R syntax, and passed through the argument `formula` in `fitHMM`. The other arguments are unchanged.
 
 ```{r fit-mod2}
-mod2 <- fitHMM(data = data, nbStates = 2, 
-               stepPar0 = stepPar0, anglePar0 = anglePar0, 
-               formula = ~ temp + slope + I(slope^2))
+mod2 <- fitHMM(
+  data = data, nbStates = 2,
+  stepPar0 = stepPar0, anglePar0 = anglePar0,
+  formula = ~ temp + slope + I(slope^2)
+)
 ```
 
 Plotting the model now also returns plots of the transition probabilities over a grid of values of each covariate (with 95\% pointwise confidence intervals if `plotCI = TRUE`). In this example, it looks like there is no clear effect of temperature, but a clear effect of slope. The probability of remaining in state 2 (or of switching from state 1 to state 2) is highest when the slope is between 10 and 30 degrees, suggesting that wild haggises move faster in that range of slopes. (See @michelot2016 for more details about the interpretation, but it has to do with their morphology.)
@@ -191,11 +195,11 @@ The function `getPlotData` creates data frames in a format that is convenient fo
 ```{r plot-tpm, fig.width = 6, fig.height = 4, out.width="60%", fig.align = "center"}
 # Plot of transition probs as function of slope
 plotData1 <- getPlotData(m = mod2, type = "tpm", format = "long")
-ggplot(plotData1$slope, aes(slope, mle)) + 
-    facet_wrap("prob") +
-    geom_line() +
-    geom_ribbon(aes(ymin = lci, ymax = uci), alpha = 0.3) +
-    labs(y = "transition probability")
+ggplot(plotData1$slope, aes(slope, mle)) +
+  facet_wrap("prob") +
+  geom_line() +
+  geom_ribbon(aes(ymin = lci, ymax = uci), alpha = 0.3) +
+  labs(y = "transition probability")
 ```
 
 Similarly, we can create a plot of stationary state probabilities as functions of slope.
@@ -203,11 +207,13 @@ Similarly, we can create a plot of stationary state probabilities as functions o
 ```{r plot-stat-2, fig.width = 6, fig.height = 4, out.width="60%", fig.align = "center"}
 # Plot of stationary state probs as function of slope
 plotData2 <- getPlotData(m = mod2, type = "stat", format = "long")
-ggplot(plotData2$slope, aes(slope,  mle, col = factor(state))) + 
-    geom_line() +
-    geom_ribbon(aes(ymin = lci, ymax = uci, col = NULL,
-                    fill = factor(state)), alpha = 0.3) +
-    labs(fill = "state", col = "state", y = "stationary state probabilities")
+ggplot(plotData2$slope, aes(slope, mle, col = factor(state))) +
+  geom_line() +
+  geom_ribbon(aes(
+    ymin = lci, ymax = uci, col = NULL,
+    fill = factor(state)
+  ), alpha = 0.3) +
+  labs(fill = "state", col = "state", y = "stationary state probabilities")
 ```
 
 # Other features 

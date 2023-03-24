@@ -1,4 +1,3 @@
-
 #' Negative log-likelihood function
 #'
 #' @param wpar Vector of working parameters.
@@ -35,86 +34,102 @@
 #' par0 <- example$par0
 #'
 #' estAngleMean <- is.null(simPar$angleMean)
-#' bounds <- parDef(simPar$stepDist,simPar$angleDist,simPar$nbStates,
-#'                  estAngleMean,simPar$zeroInflation)$bounds
-#' parSize <- parDef(simPar$stepDist,simPar$angleDist,simPar$nbStates,
-#'                   estAngleMean,simPar$zeroInflation)$parSize
+#' bounds <- parDef(
+#'   simPar$stepDist, simPar$angleDist, simPar$nbStates,
+#'   estAngleMean, simPar$zeroInflation
+#' )$bounds
+#' parSize <- parDef(
+#'   simPar$stepDist, simPar$angleDist, simPar$nbStates,
+#'   estAngleMean, simPar$zeroInflation
+#' )$parSize
 #'
-#' par <- c(par0$stepPar0,par0$anglePar0)
-#' wpar <- n2w(par,bounds,par0$beta0,par0$delta0,simPar$nbStates,FALSE)
+#' par <- c(par0$stepPar0, par0$anglePar0)
+#' wpar <- n2w(par, bounds, par0$beta0, par0$delta0, simPar$nbStates, FALSE)
 #'
-#' l <- nLogLike(wpar=wpar,nbStates=simPar$nbStates,bounds=bounds,parSize=parSize,data=data,
-#'              stepDist=simPar$stepDist,angleDist=simPar$angleDist,angleMean=simPar$angleMean,
-#'              zeroInflation=simPar$zeroInflation)
+#' l <- nLogLike(
+#'   wpar = wpar, nbStates = simPar$nbStates, bounds = bounds, parSize = parSize, data = data,
+#'   stepDist = simPar$stepDist, angleDist = simPar$angleDist, angleMean = simPar$angleMean,
+#'   zeroInflation = simPar$zeroInflation
+#' )
 #' }
 #'
 #' @export
 
-nLogLike <- function(wpar,nbStates,bounds,parSize,data,stepDist=c("gamma","weibull","lnorm","exp"),
-                     angleDist=c("vm","wrpcauchy","none"),angleMean=NULL,zeroInflation=FALSE,
-                     stationary=FALSE,knownStates=NULL)
-{
-    # check arguments
-    stepDist <- match.arg(stepDist)
-    angleDist <- match.arg(angleDist)
-    if(nbStates<1)
-        stop("nbStates must be at least 1.")
+nLogLike <- function(wpar, nbStates, bounds, parSize, data, stepDist = c("gamma", "weibull", "lnorm", "exp"),
+                     angleDist = c("vm", "wrpcauchy", "none"), angleMean = NULL, zeroInflation = FALSE,
+                     stationary = FALSE, knownStates = NULL) {
+  # check arguments
+  stepDist <- match.arg(stepDist)
+  angleDist <- match.arg(angleDist)
+  if (nbStates < 1) {
+    stop("nbStates must be at least 1.")
+  }
 
-    covsCol <- which(!names(data)%in%c("ID","x","y","step","angle"))
-    nbCovs <- length(covsCol)-1 # substract intercept column
+  covsCol <- which(!names(data) %in% c("ID", "x", "y", "step", "angle"))
+  nbCovs <- length(covsCol) - 1 # substract intercept column
 
-    if(length(which(names(data)=="(Intercept)"))==0) { # no intercept column, if not called from fitHMM
-        data <- cbind(data[,-covsCol],Intercept=rep(1,nrow(data)),data[,covsCol])
-        covsCol <- which(!names(data)%in%c("ID","x","y","step","angle"))
-        nbCovs <- length(covsCol)-1 # substract intercept column
-    }
+  if (length(which(names(data) == "(Intercept)")) == 0) { # no intercept column, if not called from fitHMM
+    data <- cbind(data[, -covsCol], Intercept = rep(1, nrow(data)), data[, covsCol])
+    covsCol <- which(!names(data) %in% c("ID", "x", "y", "step", "angle"))
+    nbCovs <- length(covsCol) - 1 # substract intercept column
+  }
 
-    if(!stationary & (length(wpar)!=sum(parSize)*nbStates+nbStates*(nbStates-1)*(nbCovs+1)+nbStates-1))
-        stop("Wrong number of parameters in wpar.")
-    if(stationary & (length(wpar)!=sum(parSize)*nbStates+nbStates*(nbStates-1)*(nbCovs+1)))
-        stop("Wrong number of parameters in wpar.")
-    if(length(data)<1)
-        stop("The data input is empty.")
+  if (!stationary & (length(wpar) != sum(parSize) * nbStates + nbStates * (nbStates - 1) * (nbCovs + 1) + nbStates - 1)) {
+    stop("Wrong number of parameters in wpar.")
+  }
+  if (stationary & (length(wpar) != sum(parSize) * nbStates + nbStates * (nbStates - 1) * (nbCovs + 1))) {
+    stop("Wrong number of parameters in wpar.")
+  }
+  if (length(data) < 1) {
+    stop("The data input is empty.")
+  }
 
-    if(is.null(data$step))
-        stop("Missing field(s) in data.")
+  if (is.null(data$step)) {
+    stop("Missing field(s) in data.")
+  }
 
-    estAngleMean <- (is.null(angleMean) & angleDist!="none")
+  estAngleMean <- (is.null(angleMean) & angleDist != "none")
 
-    # convert the parameters back to their natural scale
-    par <- w2n(wpar,bounds,parSize,nbStates,nbCovs,estAngleMean,stationary)
+  # convert the parameters back to their natural scale
+  par <- w2n(wpar, bounds, parSize, nbStates, nbCovs, estAngleMean, stationary)
 
-    if(!is.null(angleMean) & angleDist!="none") # if the turning angles' mean is not estimated
-        par$anglePar <- rbind(angleMean,par$anglePar)
+  if (!is.null(angleMean) & angleDist != "none") { # if the turning angles' mean is not estimated
+    par$anglePar <- rbind(angleMean, par$anglePar)
+  }
 
-    nbObs <- length(data$step)
-    covs <- data[,covsCol]
+  nbObs <- length(data$step)
+  covs <- data[, covsCol]
 
-    nbAnimals <- length(unique(data$ID))
+  nbAnimals <- length(unique(data$ID))
 
-    # aInd = list of indices of first observation for each animal
-    aInd <- c(1, which(data$ID[-1] != data$ID[-nbObs]) + 1)
+  # aInd = list of indices of first observation for each animal
+  aInd <- c(1, which(data$ID[-1] != data$ID[-nbObs]) + 1)
 
-    # easier to deal with in C++ function
-    if(is.null(knownStates))
-        knownStates <- -1
-    else
-        knownStates[which(is.na(knownStates))] <- 0
+  # easier to deal with in C++ function
+  if (is.null(knownStates)) {
+    knownStates <- -1
+  } else {
+    knownStates[which(is.na(knownStates))] <- 0
+  }
 
-    # NULL arguments don't suit C++
-    if(angleDist=="none")
-        par$anglePar <- matrix(NA)
-    if(stationary)
-        par$delta <- c(NA)
-    if(nbStates==1) {
-        par$beta <- matrix(NA)
-        par$delta <- c(NA)
-        par$stepPar <- as.matrix(par$stepPar)
-        par$anglePar <- as.matrix(par$anglePar)
-    }
+  # NULL arguments don't suit C++
+  if (angleDist == "none") {
+    par$anglePar <- matrix(NA)
+  }
+  if (stationary) {
+    par$delta <- c(NA)
+  }
+  if (nbStates == 1) {
+    par$beta <- matrix(NA)
+    par$delta <- c(NA)
+    par$stepPar <- as.matrix(par$stepPar)
+    par$anglePar <- as.matrix(par$anglePar)
+  }
 
-    nllk <- nLogLike_rcpp(nbStates,par$beta,as.matrix(covs),data,stepDist,angleDist,par$stepPar,
-                          par$anglePar,par$delta,aInd,zeroInflation,stationary,knownStates)
+  nllk <- nLogLike_rcpp(
+    nbStates, par$beta, as.matrix(covs), data, stepDist, angleDist, par$stepPar,
+    par$anglePar, par$delta, aInd, zeroInflation, stationary, knownStates
+  )
 
-    return(nllk)
+  return(nllk)
 }

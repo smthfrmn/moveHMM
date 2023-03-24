@@ -1,4 +1,3 @@
-
 #' Plot observations on satellite image
 #'
 #' Plot tracking data on a satellite map. This function only works with longitude
@@ -38,170 +37,192 @@
 #' @importFrom ggplot2 geom_point geom_path aes guides scale_color_manual aes_string
 #' @export
 
-plotSat <- function(data,zoom=NULL,location=NULL,segments=TRUE,compact=TRUE,col=NULL,alpha=1,size=1,
-                    states=NULL,animals=NULL,ask=TRUE,return=FALSE)
-{
-    #####################
-    ## Check arguments ##
-    #####################
-    if(is.null(data$x) | is.null(data$y))
-        stop("Data should have fields data$x and data$y.")
+plotSat <- function(data, zoom = NULL, location = NULL, segments = TRUE, compact = TRUE, col = NULL, alpha = 1, size = 1,
+                    states = NULL, animals = NULL, ask = TRUE, return = FALSE) {
+  #####################
+  ## Check arguments ##
+  #####################
+  if (is.null(data$x) | is.null(data$y)) {
+    stop("Data should have fields data$x and data$y.")
+  }
 
-    if(is.null(data$ID))
-      data$ID <- rep("Animal1",nrow(data))
+  if (is.null(data$ID)) {
+    data$ID <- rep("Animal1", nrow(data))
+  }
 
-    if(min(data$x,na.rm=TRUE) < -180 | max(data$x,na.rm=TRUE) > 180 |
-       min(data$y,na.rm=TRUE) < -90 | max(data$y,na.rm=TRUE) > 90)
-        stop("Coordinates should be longitude/latitude values.")
+  if (min(data$x, na.rm = TRUE) < -180 | max(data$x, na.rm = TRUE) > 180 |
+    min(data$y, na.rm = TRUE) < -90 | max(data$y, na.rm = TRUE) > 90) {
+    stop("Coordinates should be longitude/latitude values.")
+  }
 
-    if(!is.null(zoom)) {
-        if(zoom<3 | zoom>21)
-            stop("'zoom' should be between 3 (continent) and 21 (building).")
-    } else
-        stop("'zoom' needs to be specified as an integer between 3 (continent) and 21 (building)")
+  if (!is.null(zoom)) {
+    if (zoom < 3 | zoom > 21) {
+      stop("'zoom' should be between 3 (continent) and 21 (building).")
+    }
+  } else {
+    stop("'zoom' needs to be specified as an integer between 3 (continent) and 21 (building)")
+  }
 
-    if(!is.null(location)) {
-        if(length(location)!=2)
-            stop("'location' should be a vector of two values (longitude,latitude).")
-
-        if(location[1] < -180 | location[1] > 180 | location[2] < -90 | location[2] > 90)
-            stop("'location' should be a vector of a longitude value and a latitude value.")
-
-        midLon <- location[1]
-        midLat <- location[2]
+  if (!is.null(location)) {
+    if (length(location) != 2) {
+      stop("'location' should be a vector of two values (longitude,latitude).")
     }
 
-    if(length(alpha)!=1)
-        stop("'alpha' should be of length 1")
-
-    if(!compact & return)
-        stop("Cannot return map if not compact. Either set 'compact=TRUE' or 'return=FALSE'.")
-
-    ##############################
-    ## Prepare data and colours ##
-    ##############################
-    # add column for colours
-    if(!is.null(states)) { # use "states"
-        if(length(states)!=nrow(data))
-            stop("'states' should have the same length as 'data'")
-
-        nbCol <- length(unique(states))
-        data <- cbind(data,col=as.factor(states))
-        colname <- "state"
-
-    } else if(compact) { # use "ID"
-        if(!is.null(animals))
-            nbCol <- length(animals)
-        else
-            nbCol <- length(unique(data$ID))
-        data <- cbind(data,col=as.factor(data$ID))
-        colname <- "ID"
-
-    } else { # no colours needed
-        nbCol <- 1
-        data <- cbind(data,col=as.factor(1))
-        colname <- ""
+    if (location[1] < -180 | location[1] > 180 | location[2] < -90 | location[2] > 90) {
+      stop("'location' should be a vector of a longitude value and a latitude value.")
     }
 
-    # prepare palette
-    if(is.null(col)) {
-        if(nbCol==1) {
-            pal <- "black"
-        } else if(nbCol<8) {
-            pal <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-        } else {
-            # to make sure that all colours are distinct (emulate ggplot default palette)
-            hues <- seq(15, 375, length = nbCol + 1)
-            pal <- hcl(h = hues, l = 65, c = 100)[1:nbCol]
-        }
+    midLon <- location[1]
+    midLat <- location[2]
+  }
+
+  if (length(alpha) != 1) {
+    stop("'alpha' should be of length 1")
+  }
+
+  if (!compact & return) {
+    stop("Cannot return map if not compact. Either set 'compact=TRUE' or 'return=FALSE'.")
+  }
+
+  ##############################
+  ## Prepare data and colours ##
+  ##############################
+  # add column for colours
+  if (!is.null(states)) { # use "states"
+    if (length(states) != nrow(data)) {
+      stop("'states' should have the same length as 'data'")
+    }
+
+    nbCol <- length(unique(states))
+    data <- cbind(data, col = as.factor(states))
+    colname <- "state"
+  } else if (compact) { # use "ID"
+    if (!is.null(animals)) {
+      nbCol <- length(animals)
     } else {
-        # if one color given, duplicate for all tracks or states
-        if(length(col)==1) {
-            col <- rep(col,nbCol)
-            nbCol <- 1 # to remove legend below
-        }
-
-        if(length(col)<nbCol)
-            stop(paste("'col' should be at least of length the number of colors needed (",
-                       nbCol,").",sep=""))
-
-        pal <- col
+      nbCol <- length(unique(data$ID))
     }
+    data <- cbind(data, col = as.factor(data$ID))
+    colname <- "ID"
+  } else { # no colours needed
+    nbCol <- 1
+    data <- cbind(data, col = as.factor(1))
+    colname <- ""
+  }
 
-    # subset data to tracks to be plotted
-    if(!is.null(animals)) {
-        if(is.character(animals)) { # animals' IDs provided
-            if(!all(animals%in%unique(data$ID))) # ID not found
-                stop("Check animals argument.")
-
-            data <- subset(data, data$ID%in%animals)
-        }
-        if(is.numeric(animals)) { # animals' indices provided
-            if(any(animals<1) | any(animals>length(unique(data$ID)))) # index out of bounds
-                stop("Check animals argument.")
-
-            data <- subset(data, data$ID%in%unique(data$ID)[animals])
-        }
-    }
-
-    #################
-    ## Plot tracks ##
-    #################
-    par(ask=ask)
-    if(!compact) {
-        # loop over tracks
-        for(id in unique(data$ID)) {
-            subData <- subset(data, data$ID==id)
-
-            # define center of map
-            if(is.null(location)) {
-                midLon <- (max(subData$x,na.rm=TRUE) + min(subData$x,na.rm=TRUE))/2
-                midLat <- (max(subData$y,na.rm=TRUE) + min(subData$y,na.rm=TRUE))/2
-            }
-
-            # get map of the study region (from google)
-            map <- get_map(location=c(lon=midLon, lat=midLat), zoom=zoom, maptype="satellite",
-                           source="google")
-
-            mapMove <- ggmap(map) + geom_point(aes_string(x="x",y="y",col="col"),subData,size=size,alpha=alpha)
-
-            if(segments)
-                mapMove <- mapMove + geom_path(aes_string(x="x",y="y",col="col"),subData,alpha=alpha)
-
-            if(nbCol==1) # no legend if only one colour
-                mapMove <- mapMove + scale_color_manual(values=pal) + guides(col=FALSE)
-            else
-                mapMove <- mapMove + scale_color_manual(name = colname, values=pal)
-
-            plot(mapMove) # plot map
-        }
+  # prepare palette
+  if (is.null(col)) {
+    if (nbCol == 1) {
+      pal <- "black"
+    } else if (nbCol < 8) {
+      pal <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
     } else {
-        # define center of map
-        if(is.null(location)) {
-            midLon <- (max(data$x,na.rm=TRUE) + min(data$x,na.rm=TRUE))/2
-            midLat <- (max(data$y,na.rm=TRUE) + min(data$y,na.rm=TRUE))/2
-        }
-
-        # get map of the study region (from google)
-        map <- get_map(location=c(lon=midLon, lat=midLat), zoom=zoom, maptype="satellite",
-                       source="google")
-
-        mapMove <- ggmap(map) + geom_point(aes_string(x="x",y="y",col="col"),data,size=size,alpha=alpha)
-
-        if(segments)
-            mapMove <- mapMove + geom_path(aes_string(x="x",y="y",col="col",group="ID"),data,alpha=alpha)
-
-        if(nbCol==1) # no legend if only one colour
-            mapMove <- mapMove + scale_color_manual(values=pal) + guides(col=FALSE)
-        else
-            mapMove <- mapMove + scale_color_manual(name = colname, values=pal)
-
-        if(return) {
-            par(ask=FALSE)
-            return(mapMove) # return map object
-        } else
-            plot(mapMove) # plot map
+      # to make sure that all colours are distinct (emulate ggplot default palette)
+      hues <- seq(15, 375, length = nbCol + 1)
+      pal <- hcl(h = hues, l = 65, c = 100)[1:nbCol]
+    }
+  } else {
+    # if one color given, duplicate for all tracks or states
+    if (length(col) == 1) {
+      col <- rep(col, nbCol)
+      nbCol <- 1 # to remove legend below
     }
 
-    par(ask=FALSE)
+    if (length(col) < nbCol) {
+      stop(paste("'col' should be at least of length the number of colors needed (",
+        nbCol, ").",
+        sep = ""
+      ))
+    }
+
+    pal <- col
+  }
+
+  # subset data to tracks to be plotted
+  if (!is.null(animals)) {
+    if (is.character(animals)) { # animals' IDs provided
+      if (!all(animals %in% unique(data$ID))) { # ID not found
+        stop("Check animals argument.")
+      }
+
+      data <- subset(data, data$ID %in% animals)
+    }
+    if (is.numeric(animals)) { # animals' indices provided
+      if (any(animals < 1) | any(animals > length(unique(data$ID)))) { # index out of bounds
+        stop("Check animals argument.")
+      }
+
+      data <- subset(data, data$ID %in% unique(data$ID)[animals])
+    }
+  }
+
+  #################
+  ## Plot tracks ##
+  #################
+  par(ask = ask)
+  if (!compact) {
+    # loop over tracks
+    for (id in unique(data$ID)) {
+      subData <- subset(data, data$ID == id)
+
+      # define center of map
+      if (is.null(location)) {
+        midLon <- (max(subData$x, na.rm = TRUE) + min(subData$x, na.rm = TRUE)) / 2
+        midLat <- (max(subData$y, na.rm = TRUE) + min(subData$y, na.rm = TRUE)) / 2
+      }
+
+      # get map of the study region (from google)
+      map <- get_map(
+        location = c(lon = midLon, lat = midLat), zoom = zoom, maptype = "satellite",
+        source = "google"
+      )
+
+      mapMove <- ggmap(map) + geom_point(aes_string(x = "x", y = "y", col = "col"), subData, size = size, alpha = alpha)
+
+      if (segments) {
+        mapMove <- mapMove + geom_path(aes_string(x = "x", y = "y", col = "col"), subData, alpha = alpha)
+      }
+
+      if (nbCol == 1) { # no legend if only one colour
+        mapMove <- mapMove + scale_color_manual(values = pal) + guides(col = FALSE)
+      } else {
+        mapMove <- mapMove + scale_color_manual(name = colname, values = pal)
+      }
+
+      plot(mapMove) # plot map
+    }
+  } else {
+    # define center of map
+    if (is.null(location)) {
+      midLon <- (max(data$x, na.rm = TRUE) + min(data$x, na.rm = TRUE)) / 2
+      midLat <- (max(data$y, na.rm = TRUE) + min(data$y, na.rm = TRUE)) / 2
+    }
+
+    # get map of the study region (from google)
+    map <- get_map(
+      location = c(lon = midLon, lat = midLat), zoom = zoom, maptype = "satellite",
+      source = "google"
+    )
+
+    mapMove <- ggmap(map) + geom_point(aes_string(x = "x", y = "y", col = "col"), data, size = size, alpha = alpha)
+
+    if (segments) {
+      mapMove <- mapMove + geom_path(aes_string(x = "x", y = "y", col = "col", group = "ID"), data, alpha = alpha)
+    }
+
+    if (nbCol == 1) { # no legend if only one colour
+      mapMove <- mapMove + scale_color_manual(values = pal) + guides(col = FALSE)
+    } else {
+      mapMove <- mapMove + scale_color_manual(name = colname, values = pal)
+    }
+
+    if (return) {
+      par(ask = FALSE)
+      return(mapMove) # return map object
+    } else {
+      plot(mapMove)
+    } # plot map
+  }
+
+  par(ask = FALSE)
 }

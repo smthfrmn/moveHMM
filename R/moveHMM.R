@@ -1,4 +1,3 @@
-
 #' Constructor of \code{moveHMM} objects
 #'
 #' @param m A list of attributes of the fitted model: \code{mle} (the maximum likelihood estimates of
@@ -10,15 +9,15 @@
 #'
 #' @return An object \code{moveHMM}.
 
-moveHMM <- function(m)
-{
-    if(is.null(m$data) | is.null(m$mle) | is.null(m$mod) | is.null(m$conditions))
-        stop("Can't construct moveHMM object: fields are missing")
+moveHMM <- function(m) {
+  if (is.null(m$data) | is.null(m$mle) | is.null(m$mod) | is.null(m$conditions)) {
+    stop("Can't construct moveHMM object: fields are missing")
+  }
 
-    obj <- m
+  obj <- m
 
-    class(obj) <- append("moveHMM",class(obj))
-    return(obj)
+  class(obj) <- append("moveHMM", class(obj))
+  return(obj)
 }
 
 #' Is moveHMM
@@ -31,5 +30,6 @@ moveHMM <- function(m)
 #'
 #' @return \code{TRUE} if \code{x} is of class \code{\link{moveHMM}}, \code{FALSE} otherwise.
 
-is.moveHMM <- function(x)
-    inherits(x,"moveHMM")
+is.moveHMM <- function(x) {
+  inherits(x, "moveHMM")
+}

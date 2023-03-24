@@ -1,4 +1,3 @@
-
 #' State probabilities
 #'
 #' For a given model, computes the probability of the process being in the different states
@@ -22,34 +21,36 @@
 #'
 #' @export
 
-stateProbs <- function(m)
-{
-    if(!is.moveHMM(m))
-        stop("'m' must be a moveHMM object (as output by fitHMM)")
+stateProbs <- function(m) {
+  if (!is.moveHMM(m)) {
+    stop("'m' must be a moveHMM object (as output by fitHMM)")
+  }
 
-    data <- m$data
-    nbStates <- ncol(m$mle$stepPar)
-    nbAnimals <- length(unique(data$ID))
+  data <- m$data
+  nbStates <- ncol(m$mle$stepPar)
+  nbAnimals <- length(unique(data$ID))
 
-    if(nbStates==1)
-        stop("No states to decode (nbStates=1)")
+  if (nbStates == 1) {
+    stop("No states to decode (nbStates=1)")
+  }
 
-    nbObs <- nrow(data)
-    la <- logAlpha(m) # forward log-probabilities
-    lb <- logBeta(m) # backward log-probabilities
-    stateProbs <- matrix(NA,nbObs,nbStates)
+  nbObs <- nrow(data)
+  la <- logAlpha(m) # forward log-probabilities
+  lb <- logBeta(m) # backward log-probabilities
+  stateProbs <- matrix(NA, nbObs, nbStates)
 
-    aInd <- NULL
-    for(i in 1:nbAnimals)
-        aInd <- c(aInd,max(which(data$ID==unique(data$ID)[i])))
+  aInd <- NULL
+  for (i in 1:nbAnimals) {
+    aInd <- c(aInd, max(which(data$ID == unique(data$ID)[i])))
+  }
 
-    for(i in nbObs:1){
-        if(any(i==aInd)){
-            c <- max(la[i,]) # cancels out below ; prevents numerical errors
-            llk <- c + log(sum(exp(la[i,]-c)))
-        }
-        stateProbs[i,] <- exp(la[i,]+lb[i,]-llk)
+  for (i in nbObs:1) {
+    if (any(i == aInd)) {
+      c <- max(la[i, ]) # cancels out below ; prevents numerical errors
+      llk <- c + log(sum(exp(la[i, ] - c)))
     }
+    stateProbs[i, ] <- exp(la[i, ] + lb[i, ] - llk)
+  }
 
-    return(stateProbs)
+  return(stateProbs)
 }
