@@ -30,6 +30,6 @@ m <- example$m
 stationary(m, covs = data.frame(cov1 = 0, cov2 = 0))
 
 # design matrix (each column corresponds to row of m$mle$beta)
-stationary(m, covs = matrix(c(1,0,cos(0)),1,3))
+stationary(m, covs = matrix(c(1, 0, cos(0)), 1, 3))
 
 }

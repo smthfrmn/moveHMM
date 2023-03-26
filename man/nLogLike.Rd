@@ -67,17 +67,23 @@ simPar <- example$simPar
 par0 <- example$par0
 
 estAngleMean <- is.null(simPar$angleMean)
-bounds <- parDef(simPar$stepDist,simPar$angleDist,simPar$nbStates,
-                 estAngleMean,simPar$zeroInflation)$bounds
-parSize <- parDef(simPar$stepDist,simPar$angleDist,simPar$nbStates,
-                  estAngleMean,simPar$zeroInflation)$parSize
+bounds <- parDef(
+  simPar$stepDist, simPar$angleDist, simPar$nbStates,
+  estAngleMean, simPar$zeroInflation
+)$bounds
+parSize <- parDef(
+  simPar$stepDist, simPar$angleDist, simPar$nbStates,
+  estAngleMean, simPar$zeroInflation
+)$parSize
 
-par <- c(par0$stepPar0,par0$anglePar0)
-wpar <- n2w(par,bounds,par0$beta0,par0$delta0,simPar$nbStates,FALSE)
+par <- c(par0$stepPar0, par0$anglePar0)
+wpar <- n2w(par, bounds, par0$beta0, par0$delta0, simPar$nbStates, FALSE)
 
-l <- nLogLike(wpar=wpar,nbStates=simPar$nbStates,bounds=bounds,parSize=parSize,data=data,
-             stepDist=simPar$stepDist,angleDist=simPar$angleDist,angleMean=simPar$angleMean,
-             zeroInflation=simPar$zeroInflation)
+l <- nLogLike(
+  wpar = wpar, nbStates = simPar$nbStates, bounds = bounds, parSize = parSize, data = data,
+  stepDist = simPar$stepDist, angleDist = simPar$angleDist, angleMean = simPar$angleMean,
+  zeroInflation = simPar$zeroInflation
+)
 }
 
 }

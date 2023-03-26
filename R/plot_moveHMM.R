@@ -37,44 +37,30 @@
 #' @importFrom stats plogis qlogis
 #' @importFrom numDeriv grad
 
-plot.moveHMM <- function(x, animals = NULL, ask = TRUE, breaks = "Sturges", col = NULL,
-                         plotTracks = TRUE, plotCI = FALSE, alpha = 0.95, plotTotal = FALSE, ...) {
-  m <- x # the name "x" is for compatibility with the generic method
+
+plot.stepLength <- function(m, distData = NULL, plotTotal = FALSE, lty_ = 1, lwd_ = 1) {
   nbStates <- ncol(m$mle$stepPar)
-
-  # prepare colours for the states (used in the maps and for the densities)
-  if (is.null(col) | (!is.null(col) & length(col) != nbStates)) {
-    col <- getPalette(nbStates = nbStates)
+  if (is.null(distData)) {
+    distData <- getPlotData(m = m, type = "dist")
   }
-
-  #################################
-  ## State decoding with Viterbi ##
-  #################################
-  if (nbStates > 1) {
-    cat("Decoding states sequence... ")
-    states <- viterbi(m)
-    cat("DONE\n")
-  } else {
-    states <- rep(1, nrow(m$data))
-  }
-
-  ########################################
-  ## Plot state-dependent distributions ##
-  ########################################
-  par(mar = c(5, 4, 4, 2) - c(0, 0, 2, 1)) # bottom, left, top, right
-  par(ask = ask)
-
-  distData <- getPlotData(m = m, type = "dist")
 
   # setup line options
-  legText <- c(paste("state", 1:nbStates), "total")
-  lty <- c(rep(1, nbStates), 2)
-  lwd <- c(rep(1, nbStates), 2)
-  lineCol <- c(col, "black")
+  legText <- paste("state", 1:nbStates)
+  lty <- rep(lty_, nbStates)
+  lwd <- rep(lwd_, nbStates)
+  lineCole <- col
+
+  if (plotTotal) {
+    legText <- c(legText, "total")
+    lty <- c(lty, 2)
+    lwd <- c(lwd, 2)
+    lineCol <- c(lineCole, "black")
+  }
+
 
   # define ymax for step histogram
   h <- hist(m$data$step, plot = FALSE, breaks = breaks)
-  ymax <- 1.3 * max(h$density, na.rm = TRUE)
+  ymax <- 1.5 * max(h$density, na.rm = TRUE)
   maxdens <- max(distData$step$total, na.rm = TRUE)
   if (maxdens > ymax & maxdens < 1.5 * ymax) {
     ymax <- maxdens
@@ -95,6 +81,27 @@ plot.moveHMM <- function(x, animals = NULL, ask = TRUE, breaks = "Sturges", col 
     )
   }
   legend("top", legText, lwd = lwd, col = lineCol, lty = lty, bty = "n")
+}
+
+
+plot.turnAngle <- function(m, distData = NULL, plotTotal = FALSE, lty_ = 1, lwd_ = 1) {
+  nbStates <- ncol(m$mle$stepPar)
+  if (is.null(distData)) {
+    distData <- getPlotData(m = m, type = "dist")
+  }
+
+  # setup line options
+  legText <- paste("state", 1:nbStates)
+  lty <- rep(lty_, nbStates)
+  lwd <- rep(lwd_, nbStates)
+  lineCole <- col
+
+  if (plotTotal) {
+    legText <- c(legText, "total")
+    lty <- c(lty, 2)
+    lwd <- c(lwd, 2)
+    lineCol <- c(lineCole, "black")
+  }
 
   # define ymax and breaks for angle histogram
   h1 <- hist(m$data$angle, plot = FALSE, breaks = breaks)
@@ -119,11 +126,83 @@ plot.moveHMM <- function(x, animals = NULL, ask = TRUE, breaks = "Sturges", col 
     )
   }
   legend("top", legText, lwd = lwd, col = lineCol, lty = lty, bty = "n")
+}
 
-  ##################################################
-  ## Plot the t.p. as functions of the covariates ##
-  ##################################################
+
+plot.mapsByState <- function(m, animals = NULL) {
+  nbStates <- ncol(m$mle$stepPar)
+  nbAnimals <- length(unique(m$data$ID))
+
+  #################################
+  ## State decoding with Viterbi ##
+  #################################
+  if (nbStates > 1) {
+    cat("Decoding states sequence... ")
+    states <- viterbi(m)
+    cat("DONE\n")
+  } else {
+    states <- rep(1, nrow(m$data))
+  }
+
+  if (is.character(animals)) {
+    if (any(!animals %in% unique(m$data$ID))) {
+      stop("Check 'animals' argument, ID not found")
+    }
+    animalsInd <- which(unique(m$data$ID) %in% animals)
+  } else if (is.numeric(animals)) {
+    if (min(animals) < 1 | max(animals) > nbAnimals) {
+      stop("Check 'animals' argument, index out of bounds")
+    }
+    animalsInd <- animals
+  } else {
+    animalsInd <- 1:nbAnimals
+  }
+
+  nbAnimals <- length(animalsInd)
+  ID <- unique(m$data$ID)[animalsInd]
+
+  par(mfrow = c(1, 1))
+  par(mar = c(5, 4, 4, 2) - c(0, 0, 2, 1)) # bottom, left, top, right
+
+  for (zoo in 1:nbAnimals) {
+    # data for this animal
+    ind <- which(m$data$ID == ID[zoo])
+    s <- states[ind]
+    x <- m$data$x[ind]
+    y <- m$data$y[ind]
+
+    # slightly different for 2D and 1D data
+    if (!all(y == 0)) {
+      plot(x, y,
+        pch = 16, col = col[s], cex = 0.5, asp = 1,
+        xlab = "x", ylab = "y"
+      )
+      segments(
+        x0 = x[-length(x)], y0 = y[-length(y)],
+        x1 = x[-1], y1 = y[-1],
+        col = col[s[-length(s)]], lwd = 1.3
+      )
+    } else { # if 1D data
+      plot(x,
+        xlab = "time", ylab = "x", pch = 16,
+        cex = 0.5, col = col[s]
+      )
+      segments(
+        x0 = 1:(length(x) - 1), y0 = x[-length(x)],
+        x1 = 2:length(x), y1 = x[-1],
+        col = col[s[-length(x)]], lwd = 1.3
+      )
+
+      mtext(paste("Animal ID:", ID[zoo]), side = 3, outer = TRUE, padj = 2)
+    }
+  }
+}
+
+
+plot.tpByCovariates <- function(m, plotCI = FALSE) {
   beta <- m$mle$beta
+  nbStates <- ncol(m$mle$stepPar)
+
   if (nbStates > 1 & nrow(beta) > 1) {
     trProbs <- getPlotData(m, type = "tpm", format = "wide")
 
@@ -159,64 +238,39 @@ plot.moveHMM <- function(x, animals = NULL, ask = TRUE, breaks = "Sturges", col 
       mtext("Transition probabilities", side = 3, outer = TRUE, padj = 2)
     }
   }
+}
 
-  #################################
-  ## Plot maps colored by states ##
-  #################################
-  # Prepare the data
-  nbAnimals <- length(unique(m$data$ID))
-  if (is.character(animals)) {
-    if (any(!animals %in% unique(m$data$ID))) {
-      stop("Check 'animals' argument, ID not found")
-    }
-    animalsInd <- which(unique(m$data$ID) %in% animals)
-  } else if (is.numeric(animals)) {
-    if (min(animals) < 1 | max(animals) > nbAnimals) {
-      stop("Check 'animals' argument, index out of bounds")
-    }
-    animalsInd <- animals
-  } else {
-    animalsInd <- 1:nbAnimals
+
+plot.moveHMM <- function(x, animals = NULL, ask = TRUE, breaks = "Sturges", col = NULL,
+                         plotTracks = TRUE, plotCI = FALSE, alpha = 0.95, plotTotal = FALSE, ...) {
+  m <- x # the name "x" is for compatibility with the generic method
+  nbStates <- ncol(m$mle$stepPar)
+
+  # prepare colours for the states (used in the maps and for the densities)
+  if (is.null(col) | (!is.null(col) & length(col) != nbStates)) {
+    col <- getPalette(nbStates = nbStates)
   }
-  nbAnimals <- length(animalsInd)
-  ID <- unique(m$data$ID)[animalsInd]
 
-  if (nbStates > 1 & plotTracks) { # no need to plot the map if only one state
-    par(mfrow = c(1, 1))
-    par(mar = c(5, 4, 4, 2) - c(0, 0, 2, 1)) # bottom, left, top, right
+  ########################################
+  ## Plot state-dependent distributions ##
+  ########################################
+  par(mar = c(5, 4, 4, 2) - c(0, 0, 2, 1)) # bottom, left, top, right
+  par(ask = ask)
 
-    for (zoo in 1:nbAnimals) {
-      # data for this animal
-      ind <- which(m$data$ID == ID[zoo])
-      s <- states[ind]
-      x <- m$data$x[ind]
-      y <- m$data$y[ind]
+  distData <- getPlotData(m = m, type = "dist")
+  plot.stepLength(m, distData = distData, plotTotal = plotTotal)
+  plot.turnAngle(m, distData = distData, plotTotal = plotTotal)
 
-      # slightly different for 2D and 1D data
-      if (!all(y == 0)) {
-        plot(x, y,
-          pch = 16, col = col[s], cex = 0.5, asp = 1,
-          xlab = "x", ylab = "y"
-        )
-        segments(
-          x0 = x[-length(x)], y0 = y[-length(y)],
-          x1 = x[-1], y1 = y[-1],
-          col = col[s[-length(s)]], lwd = 1.3
-        )
-      } else { # if 1D data
-        plot(x,
-          xlab = "time", ylab = "x", pch = 16,
-          cex = 0.5, col = col[s]
-        )
-        segments(
-          x0 = 1:(length(x) - 1), y0 = x[-length(x)],
-          x1 = 2:length(x), y1 = x[-1],
-          col = col[s[-length(x)]], lwd = 1.3
-        )
-      }
+  ##################################################
+  ## Plot the t.p. as functions of the covariates ##
+  ##################################################
+  plot.tpByCovariates(m, plotCI = plotCI)
 
-      mtext(paste("Animal ID:", ID[zoo]), side = 3, outer = TRUE, padj = 2)
-    }
+  ##################################################
+  ## Plot map by state ##
+  ##################################################
+  if (plotTracks & nbStates > 1) {
+    plot.mapsByState(m, animals = animals)
   }
 
   # set the graphical parameters back to default

@@ -50,15 +50,21 @@ Used in functions \code{\link{viterbi}}, \code{\link{logAlpha}}, \code{\link{log
 }
 \examples{
 \dontrun{
-stepPar <- c(1,10,1,5,0.2,0.3)
-anglePar <- c(0,pi,0.5,2)
+stepPar <- c(1, 10, 1, 5, 0.2, 0.3)
+anglePar <- c(0, pi, 0.5, 2)
 stepDist <- "gamma"
 angleDist <- "vm"
-data <- simData(nbAnimals=5,nbStates=2,stepDist=stepDist,angleDist=angleDist,stepPar=stepPar,
-                 anglePar=anglePar,nbCovs=2,zeroInflation=TRUE)
-P <- allProbs(data=data,nbStates=2,stepDist=stepDist,angleDist=angleDist,
-               stepPar=matrix(stepPar,ncol=2,byrow=TRUE),anglePar=matrix(anglePar,ncol=2,
-               byrow=TRUE),zeroInflation=TRUE)
+data <- simData(
+  nbAnimals = 5, nbStates = 2, stepDist = stepDist, angleDist = angleDist, stepPar = stepPar,
+  anglePar = anglePar, nbCovs = 2, zeroInflation = TRUE
+)
+P <- allProbs(
+  data = data, nbStates = 2, stepDist = stepDist, angleDist = angleDist,
+  stepPar = matrix(stepPar, ncol = 2, byrow = TRUE), anglePar = matrix(anglePar,
+    ncol = 2,
+    byrow = TRUE
+  ), zeroInflation = TRUE
+)
 }
 }
 \keyword{internal}

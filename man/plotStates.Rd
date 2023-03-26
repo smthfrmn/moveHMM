@@ -21,6 +21,6 @@ Plot the states and states probabilities.
 m <- example$m
 
 # plot states for first and second animals
-plotStates(m,animals=c(1,2))
+plotStates(m, animals = c(1, 2))
 
 }
