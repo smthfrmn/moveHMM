@@ -1,5 +1,5 @@
 #' @export
-plot.stepLength <- function(m, distData = NULL, plotTotal = FALSE, lty_ = 1, lwd_ = 1) {
+plotFittedStepLength <- function(m, distData = NULL, plotTotal = FALSE, lty_ = 1, lwd_ = 1, breaks = "Sturges", col = NULL) {
   nbStates <- ncol(m$mle$stepPar)
   if (is.null(distData)) {
     distData <- getPlotData(m = m, type = "dist")
@@ -45,7 +45,7 @@ plot.stepLength <- function(m, distData = NULL, plotTotal = FALSE, lty_ = 1, lwd
 }
 
 #' @export
-plot.turnAngle <- function(m, distData = NULL, plotTotal = FALSE, lty_ = 1, lwd_ = 1) {
+plotFittedTurnAngle <- function(m, distData = NULL, plotTotal = FALSE, lty_ = 1, lwd_ = 1, breaks = "Sturges", col = NULL) {
   nbStates <- ncol(m$mle$stepPar)
   if (is.null(distData)) {
     distData <- getPlotData(m = m, type = "dist")
@@ -90,7 +90,7 @@ plot.turnAngle <- function(m, distData = NULL, plotTotal = FALSE, lty_ = 1, lwd_
 }
 
 #' @export
-plot.mapsByState <- function(m, animals = NULL) {
+plotFittedMapsByState <- function(m, animals = NULL) {
   nbStates <- ncol(m$mle$stepPar)
   nbAnimals <- length(unique(m$data$ID))
 
@@ -160,7 +160,7 @@ plot.mapsByState <- function(m, animals = NULL) {
 }
 
 #' @export
-plot.tpByCovariates <- function(m, plotCI = FALSE) {
+plotFittedTpByCovariates <- function(m, plotCI = FALSE) {
   beta <- m$mle$beta
   nbStates <- ncol(m$mle$stepPar)
 
@@ -259,19 +259,19 @@ plot.moveHMM <- function(x, animals = NULL, ask = TRUE, breaks = "Sturges", col 
   par(ask = ask)
 
   distData <- getPlotData(m = m, type = "dist")
-  plot.stepLength(m, distData = distData, plotTotal = plotTotal)
-  plot.turnAngle(m, distData = distData, plotTotal = plotTotal)
+  plotFittedStepLength(m, distData = distData, plotTotal = plotTotal, breaks = breaks, col = col)
+  plotFittedTurnAngle(m, distData = distData, plotTotal = plotTotal, breaks = breaks, col = col)
 
   ##################################################
   ## Plot the t.p. as functions of the covariates ##
   ##################################################
-  plot.tpByCovariates(m, plotCI = plotCI)
+  plotFittedTpByCovariates(m, plotCI = plotCI)
 
   ##################################################
   ## Plot map by state ##
   ##################################################
   if (plotTracks & nbStates > 1) {
-    plot.mapsByState(m, animals = animals)
+    plotFittedMapsByState(m, animals = animals)
   }
 
   # set the graphical parameters back to default
