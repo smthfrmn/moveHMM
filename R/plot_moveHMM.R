@@ -1,43 +1,4 @@
-#' Plot \code{moveHMM}
-#'
-#' Plot the fitted step and angle densities over histograms of the data, transition probabilities
-#' as functions of the covariates, and maps of the animals' tracks colored by the decoded states.
-#'
-#' @method plot moveHMM
-#'
-#' @param x Object \code{moveHMM}
-#' @param animals Vector of indices or IDs of animals for which information will be plotted.
-#' Default: \code{NULL}; all animals are plotted.
-#' @param ask If \code{TRUE}, the execution pauses between each plot.
-#' @param breaks Histogram parameter. See \code{hist} documentation.
-#' See \code{hist} documentation. Default: \code{NULL} ; the function sets default values.
-#' @param col Vector or colors for the states (one color per state).
-#' @param plotTracks If \code{TRUE}, the Viterbi-decoded tracks are plotted (default).
-#' @param plotCI If \code{TRUE}, confidence intervals are plotted on the transition
-#' probabilities (default: FALSE).
-#' @param alpha Significance level of the confidence intervals if plotCI=TRUE.
-#' Default: 0.95 (i.e. 95\% CIs).
-#' @param ... Currently unused. For compatibility with generic method.
-#'
-#' @details The state-dependent densities are weighted by the frequency of each state in the most
-#' probable state sequence (decoded with the function \code{\link{viterbi}}). For example, if the
-#' most probable state sequence indicates that one third of observations correspond to the first
-#' state, and two thirds to the second state, the plots of the densities in the first state are
-#' weighted by a factor 1/3, and in the second state by a factor 2/3.
-#'
-#' @examples
-#' # m is a moveHMM object (as returned by fitHMM), automatically loaded with the package
-#' m <- example$m
-#'
-#' plot(m, ask = TRUE, animals = 1, breaks = 20)
-#'
 #' @export
-#' @importFrom graphics legend lines segments arrows
-#' @importFrom grDevices gray
-#' @importFrom stats plogis qlogis
-#' @importFrom numDeriv grad
-
-
 plot.stepLength <- function(m, distData = NULL, plotTotal = FALSE, lty_ = 1, lwd_ = 1) {
   nbStates <- ncol(m$mle$stepPar)
   if (is.null(distData)) {
@@ -83,7 +44,7 @@ plot.stepLength <- function(m, distData = NULL, plotTotal = FALSE, lty_ = 1, lwd
   legend("top", legText, lwd = lwd, col = lineCol, lty = lty, bty = "n")
 }
 
-
+#' @export
 plot.turnAngle <- function(m, distData = NULL, plotTotal = FALSE, lty_ = 1, lwd_ = 1) {
   nbStates <- ncol(m$mle$stepPar)
   if (is.null(distData)) {
@@ -128,7 +89,7 @@ plot.turnAngle <- function(m, distData = NULL, plotTotal = FALSE, lty_ = 1, lwd_
   legend("top", legText, lwd = lwd, col = lineCol, lty = lty, bty = "n")
 }
 
-
+#' @export
 plot.mapsByState <- function(m, animals = NULL) {
   nbStates <- ncol(m$mle$stepPar)
   nbAnimals <- length(unique(m$data$ID))
@@ -198,7 +159,7 @@ plot.mapsByState <- function(m, animals = NULL) {
   }
 }
 
-
+#' @export
 plot.tpByCovariates <- function(m, plotCI = FALSE) {
   beta <- m$mle$beta
   nbStates <- ncol(m$mle$stepPar)
@@ -241,6 +202,46 @@ plot.tpByCovariates <- function(m, plotCI = FALSE) {
 }
 
 
+
+#' Plot \code{moveHMM}
+#'
+#' Plot the fitted step and angle densities over histograms of the data, transition probabilities
+#' as functions of the covariates, and maps of the animals' tracks colored by the decoded states.
+#'
+#' @method plot moveHMM
+#'
+#' @param x Object \code{moveHMM}
+#' @param animals Vector of indices or IDs of animals for which information will be plotted.
+#' Default: \code{NULL}; all animals are plotted.
+#' @param ask If \code{TRUE}, the execution pauses between each plot.
+#' @param breaks Histogram parameter. See \code{hist} documentation.
+#' See \code{hist} documentation. Default: \code{NULL} ; the function sets default values.
+#' @param col Vector or colors for the states (one color per state).
+#' @param plotTracks If \code{TRUE}, the Viterbi-decoded tracks are plotted (default).
+#' @param plotCI If \code{TRUE}, confidence intervals are plotted on the transition
+#' probabilities (default: FALSE).
+#' @param alpha Significance level of the confidence intervals if plotCI=TRUE.
+#' Default: 0.95 (i.e. 95\% CIs).
+#' @param ... Currently unused. For compatibility with generic method.
+#'
+#' @details The state-dependent densities are weighted by the frequency of each state in the most
+#' probable state sequence (decoded with the function \code{\link{viterbi}}). For example, if the
+#' most probable state sequence indicates that one third of observations correspond to the first
+#' state, and two thirds to the second state, the plots of the densities in the first state are
+#' weighted by a factor 1/3, and in the second state by a factor 2/3.
+#'
+#' @examples
+#' # m is a moveHMM object (as returned by fitHMM), automatically loaded with the package
+#' m <- example$m
+#'
+#' plot(m, ask = TRUE, animals = 1, breaks = 20)
+#'
+#' @export
+#' @importFrom graphics legend lines segments arrows
+#' @importFrom grDevices gray
+#' @importFrom stats plogis qlogis
+#' @importFrom numDeriv grad
+#'
 plot.moveHMM <- function(x, animals = NULL, ask = TRUE, breaks = "Sturges", col = NULL,
                          plotTracks = TRUE, plotCI = FALSE, alpha = 0.95, plotTotal = FALSE, ...) {
   m <- x # the name "x" is for compatibility with the generic method
