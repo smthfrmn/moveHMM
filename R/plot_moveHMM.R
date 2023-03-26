@@ -1,6 +1,12 @@
 #' @export
 plotFittedStepLength <- function(m, distData = NULL, plotTotal = FALSE, lty_ = 1, lwd_ = 1, breaks = "Sturges", col = NULL) {
   nbStates <- ncol(m$mle$stepPar)
+
+  # prepare colours for the states (used in the maps and for the densities)
+  if(is.null(col) | (!is.null(col) & length(col) != nbStates)) {
+      col <- getPalette(nbStates = nbStates)
+  }
+
   if (is.null(distData)) {
     distData <- getPlotData(m = m, type = "dist")
   }
@@ -9,13 +15,13 @@ plotFittedStepLength <- function(m, distData = NULL, plotTotal = FALSE, lty_ = 1
   legText <- paste("state", 1:nbStates)
   lty <- rep(lty_, nbStates)
   lwd <- rep(lwd_, nbStates)
-  lineCole <- col
+  lineCol <- col
 
   if (plotTotal) {
     legText <- c(legText, "total")
     lty <- c(lty, 2)
     lwd <- c(lwd, 2)
-    lineCol <- c(lineCole, "black")
+    lineCol <- c(lineCol, "black")
   }
 
 
@@ -47,6 +53,12 @@ plotFittedStepLength <- function(m, distData = NULL, plotTotal = FALSE, lty_ = 1
 #' @export
 plotFittedTurnAngle <- function(m, distData = NULL, plotTotal = FALSE, lty_ = 1, lwd_ = 1, breaks = "Sturges", col = NULL) {
   nbStates <- ncol(m$mle$stepPar)
+
+  # prepare colours for the states (used in the maps and for the densities)
+  if(is.null(col) | (!is.null(col) & length(col) != nbStates)) {
+      col <- getPalette(nbStates = nbStates)
+  }
+
   if (is.null(distData)) {
     distData <- getPlotData(m = m, type = "dist")
   }
@@ -55,13 +67,13 @@ plotFittedTurnAngle <- function(m, distData = NULL, plotTotal = FALSE, lty_ = 1,
   legText <- paste("state", 1:nbStates)
   lty <- rep(lty_, nbStates)
   lwd <- rep(lwd_, nbStates)
-  lineCole <- col
+  lineCol <- col
 
   if (plotTotal) {
     legText <- c(legText, "total")
     lty <- c(lty, 2)
     lwd <- c(lwd, 2)
-    lineCol <- c(lineCole, "black")
+    lineCol <- c(lineCol, "black")
   }
 
   # define ymax and breaks for angle histogram
@@ -90,8 +102,21 @@ plotFittedTurnAngle <- function(m, distData = NULL, plotTotal = FALSE, lty_ = 1,
 }
 
 #' @export
-plotFittedMapsByState <- function(m, animals = NULL) {
+plotFittedMapsByState <- function(m, animals = NULL, col = NULL) {
   nbStates <- ncol(m$mle$stepPar)
+
+  # prepare colours for the states (used in the maps and for the densities)
+  if(is.null(col) | (!is.null(col) & length(col) != nbStates)) {
+      col <- getPalette(nbStates = nbStates)
+  }
+
+  lineCol <- col
+
+  # prepare colours for the states (used in the maps and for the densities)
+  if(is.null(col) | (!is.null(col) & length(col) != nbStates)) {
+      col <- getPalette(nbStates = nbStates)
+  }
+
   nbAnimals <- length(unique(m$data$ID))
 
   #################################
