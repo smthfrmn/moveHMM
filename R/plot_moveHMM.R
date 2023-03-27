@@ -92,6 +92,8 @@ plotFittedTurnAngle <- function(m, distData = NULL, plotTotal = FALSE, lty_ = 1,
     at = c(-pi, -pi / 2, 0, pi / 2, pi),
     labels = expression(-pi, -pi / 2, 0, pi / 2, pi)
   )
+
+  nlines <- ifelse(plotTotal, nbStates + 1, nbStates)
   for (i in 1:nlines) {
     lines(distData$angle$angle, distData$angle[, i + 1],
       col = lineCol[i],
